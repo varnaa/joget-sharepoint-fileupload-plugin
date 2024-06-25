@@ -1,6 +1,8 @@
 package ae.gcg.plugins.sharepoint.fileupload;
 
 import ae.gcg.plugins.sharepoint.fileupload.util.SharepointAPIHelper;
+import okhttp3.Headers;
+import okhttp3.Response;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.service.AppPluginUtil;
 import org.joget.apps.app.service.AppUtil;
@@ -216,13 +218,16 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
         String siteName = getPropertyString("siteName");
         String folderName = getPropertyString("folderName");
 
-        Set<String> remove = null;
-        if ("true".equals(getPropertyString("removeFile"))) {
-            remove = new HashSet<String>();
-            Form form = FormUtil.findRootForm(this);
-            String originalValues = formData.getLoadBinderDataProperty(form, id);
-            if (originalValues != null) {
+        Set<String> remove = new HashSet<>();
+        Set<String> existing = new HashSet<>();
+        Form form = FormUtil.findRootForm(this);
+        String originalValues = formData.getLoadBinderDataProperty(form, id);
+
+       if (  originalValues != null) {
+            if ("true".equals(getPropertyString("removeFile"))) {
                 remove.addAll(Arrays.asList(originalValues.split(";")));
+            }else{
+                existing.addAll(Arrays.asList(originalValues.split(";")));
             }
         }
 
@@ -252,20 +257,30 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
                             String stackTrace = sw.toString();
 
                             // Log the stack trace using your custom LogUtil
-                            LogUtil.info("An Exception occurred while creating document: " + e.getMessage() , "\nStackTrace: " + stackTrace);
+                            LogUtil.info("An Exception occurred while creating document: " + e.getMessage(), "\nStackTrace: " + stackTrace);
                         }
 
                         filePaths.add(value + "|" + documentId);
                         resultedValue.add(file.getName() + "|" + documentId);
                     } else {
-                        if (remove != null && !value.isEmpty()) {
-                            remove.removeIf(item -> {
-                                if (item.contains(value)) {
-                                    resultedValue.add(item);
-                                    return true;
-                                }
-                                return false;
-                            });
+                        if(!value.isEmpty()){
+                            if (remove != null && !remove.isEmpty() && !remove.contains("")) {
+                                remove.removeIf(item -> {
+                                    if (item.contains(value)) {
+                                        resultedValue.add(item);
+                                        return true;
+                                    }
+                                    return false;
+                                });
+                            } else {
+                                existing.removeIf(item -> {
+                                    if (item.contains(value)) {
+                                        resultedValue.add(item);
+                                        return true;
+                                    }
+                                    return false;
+                                });
+                            }
                         }
                     }
                 }
@@ -425,7 +440,44 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
         String documentId = request.getParameter("dID");
 
         if ("download".equals(action) && (documentId != null && !documentId.isEmpty())) {
-           // Download yet to implement.
+            // Download yet to implement.
+            String params = SecurityUtil.decrypt(request.getParameter("params"));
+            JSONObject paramsObject = new JSONObject(params);
+            String applicationId = paramsObject.getString("applicationId");
+            String clientId = paramsObject.getString("clientId");
+            String clientSecret = paramsObject.getString("clientSecret");
+            String refreshToken = paramsObject.getString("refreshToken");
+            String tenantName = paramsObject.getString("tenantName");
+            String tenantId = paramsObject.getString("tenantId");
+            String siteName = paramsObject.getString("siteName");
+            String folderName = paramsObject.getString("folderName");
+            String fileName = paramsObject.getString("fileName");
+
+            Response sharepointResponse = new SharepointAPIHelper().downloadFileFromSharePoint(applicationId, tenantName, clientId, clientSecret, refreshToken, tenantId, siteName, folderName, documentId);
+            try {
+
+                Headers headers = sharepointResponse.headers();
+                Iterator<String> headerIt = headers.names().iterator();
+                response.setContentType("application/octet-stream");
+                response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+                InputStream documentStream = sharepointResponse.body().byteStream();
+                byte[] buffer = new byte[4096];
+
+                while (true) {
+                    int bytesRead;
+                    if ((bytesRead = documentStream.read(buffer)) == -1) {
+                        response.getOutputStream().flush();
+                        break;
+                    }
+
+                    response.getOutputStream().write(buffer, 0, bytesRead);
+                }
+            } catch (Exception e) {
+                LogUtil.info("Exeption occurred while downloading: ", e.getMessage());
+            }
+
+
         }
 
 

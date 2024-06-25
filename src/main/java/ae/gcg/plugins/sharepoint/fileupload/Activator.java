@@ -15,6 +15,8 @@ public class Activator implements BundleActivator {
 
         //Register plugin here
         registrationList.add(context.registerService(SharePointFileUpload.class.getName(), new SharePointFileUpload(), null));
+        registrationList.add(context.registerService(SharePointFileFormatter.class.getName(), new SharePointFileFormatter(), null));
+
     }
 
     public void stop(BundleContext context) {

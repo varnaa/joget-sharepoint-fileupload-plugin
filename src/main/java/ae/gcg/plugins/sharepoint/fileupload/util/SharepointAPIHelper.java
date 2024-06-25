@@ -20,7 +20,7 @@ public class SharepointAPIHelper {
         byte[] fileContent = Files.readAllBytes(file.toPath());
         RequestBody body = RequestBody.create(fileContent, MediaType.parse("application/octet-stream"));
 
-        String accessToken = getAccessToken(applicationId,  tenantName,  tenantId,  clientId,  clientSecret,  refreshToken);
+        String accessToken = getAccessToken(applicationId, tenantName, tenantId, clientId, clientSecret, refreshToken);
         LogUtil.info("<- Generated Access Token -->", accessToken);
 
         String formDigest = getFormDigestValue(tenantName, siteName, accessToken);
@@ -92,7 +92,7 @@ public class SharepointAPIHelper {
         }
     }
 
-    public  String getFormDigestValue(String tenantName, String siteName, String accessToken) throws IOException {
+    public String getFormDigestValue(String tenantName, String siteName, String accessToken) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
         String url = getFormDigestURL(tenantName, siteName);
@@ -134,8 +134,40 @@ public class SharepointAPIHelper {
                 "')/Files/add(url='" + fileName + "',overwrite=" + overwrite + ")";
     }
 
+    public Response downloadFileFromSharePoint(String applicationId, String tenantName, String clientId, String clientSecret, String refreshToken, String tenantId, String siteName, String folderName, String documentID) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        String accessToken = getAccessToken(applicationId, tenantName, tenantId, clientId, clientSecret, refreshToken);
+        LogUtil.info("<- Generated Access Token -->", accessToken);
 
 
+        // Build the download URL
+        String url = buildFileAccessURL(tenantName, siteName, documentID);
+        LogUtil.info("Download URL: ", url);
+
+
+        // Build the request with necessary headers
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Accept", "application/octet-stream")
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+
+        // Execute the request and handle the response
+        Response response = client.newCall(request).execute();
+            if (!response.isSuccessful()) {
+                LogUtil.info("Download Response: ", response.body().toString());
+                throw new IOException("Unexpected code " + response);
+            }
+
+            return response;
+
+    }
+
+
+    public String buildFileAccessURL(String tenantName, String siteName, String fileId) {
+        return "https://" + tenantName + ".sharepoint.com/sites/" + siteName + "/_api/Web/GetFileById('" + fileId + "')/$value";
+    }
 
 
 }
