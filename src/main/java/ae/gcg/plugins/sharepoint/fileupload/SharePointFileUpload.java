@@ -114,7 +114,7 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
     @Override
     public Boolean selfValidate(FormData formData) {
         String id = FormUtil.getElementParameterName(this);
-        Boolean valid = true;
+        boolean valid = true;
         String error = "";
         try {
             String[] values = FormUtil.getElementPropertyValues(this, formData);
@@ -134,7 +134,7 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
                     if (getPropertyString("fileType") != null && !getPropertyString("fileType").isEmpty()) {
                         String[] fileType = getPropertyString("fileType").split(";");
                         String filename = file.getName().toUpperCase();
-                        Boolean found = false;
+                        boolean found = false;
                         for (String type : fileType) {
                             if (filename.endsWith(type.toUpperCase())) {
                                 found = true;
@@ -217,6 +217,8 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
         String tenantId = getPropertyString("tenantId");
         String siteName = getPropertyString("siteName");
         String folderName = getPropertyString("folderName");
+        String MOMFieldId = getPropertyString("MOMId");
+        String MOMId = formData.getRequestParameter(MOMFieldId);
 
         Set<String> remove = new HashSet<>();
         Set<String> existing = new HashSet<>();
@@ -238,7 +240,7 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
                 // set value into Properties and FormRowSet object
                 FormRow result = new FormRow();
                 List<String> resultedValue = new ArrayList<String>();
-                List<String> filePaths = new ArrayList<String>();
+                List<String> filePaths = new ArrayList<>();
 
                 for (String value : values) {
                     // check if the file is in temp file
@@ -248,7 +250,7 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
                         // upload file to SharePoint
                         String documentId = "";
                         try {
-                            documentId = new SharepointAPIHelper().uploadFileToSharePoint(applicationId, tenantName, clientId, clientSecret, refreshToken, tenantId, siteName, folderName, file.getName(), file);
+                            documentId = new SharepointAPIHelper().uploadFileToSharePoint(applicationId, tenantName, clientId, clientSecret, refreshToken, tenantId, siteName, folderName, file.getName(), file, MOMId);
                         } catch (IOException e) {
                             // Convert stack trace to a single string
                             StringWriter sw = new StringWriter();
@@ -453,7 +455,7 @@ public class SharePointFileUpload extends Element implements FormBuilderPaletteE
             String folderName = paramsObject.getString("folderName");
             String fileName = paramsObject.getString("fileName");
 
-            Response sharepointResponse = new SharepointAPIHelper().downloadFileFromSharePoint(applicationId, tenantName, clientId, clientSecret, refreshToken, tenantId, siteName, folderName, documentId);
+            Response sharepointResponse = new SharepointAPIHelper().downloadFileFromSharePoint(applicationId, tenantName, clientId, clientSecret, refreshToken, tenantId, siteName, documentId);
             try {
 
                 Headers headers = sharepointResponse.headers();

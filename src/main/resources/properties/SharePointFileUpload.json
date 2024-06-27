@@ -225,6 +225,19 @@
         "label": "@@ae.gcg.plugins.sharepoint.fileupload.folderName@@",
         "type": "textfield",
         "required": "True"
+      },
+      {
+        "name" : "formDefId",
+        "label" : "@@ae.gcg.plugins.sharepoint.fileupload.form@@",
+        "type" : "selectbox",
+        "options_ajax": "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/forms/options"
+      },
+      {
+        "name" : "MOMId",
+        "label" : "@@ae.gcg.plugins.doxis.fileupload.meetingID@@",
+        "type" : "selectbox",
+        "options_ajax_on_change" : "formDefId",
+        "options_ajax" : "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/form/columns/options"
       }
     ]
   }
