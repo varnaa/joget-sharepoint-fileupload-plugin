@@ -1,0 +1,141 @@
+[{
+
+  "title" : "@@org.joget.marketplace.sharepoint.formatter@@",
+
+  "properties" : [
+
+    {
+
+      "name":"enableDownload",
+
+      "label":"@@org.joget.marketplace.sharepoint.formatter.enableDownload@@",
+
+      "type":"checkbox",
+
+      "value":"False",
+
+      "options":[
+
+        {
+
+          "value":"true",
+
+          "label":""
+
+        }
+
+      ]
+
+    },
+
+    {
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.credentials@@",
+
+      "type": "header",
+
+      "description": "@@ae.gcg.plugins.sharepoint.fileupload.credentialsDesc@@"
+
+    },
+
+    {
+
+      "name": "applicationId",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.applicationId@@",
+
+      "type": "textfield",
+
+      "required": "True"
+
+    },
+
+    {
+
+      "name": "clientId",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.clientId@@",
+
+      "type": "textfield",
+
+      "required": "True"
+
+    },
+
+    {
+
+      "name": "clientSecret",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.clientSecret@@",
+
+      "type": "password",
+
+      "required": "True"
+
+    },
+
+    {
+
+      "name": "refreshToken",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.refreshToken@@",
+
+      "type": "password",
+
+      "required": "True"
+
+    },
+
+    {
+
+      "name": "tenantName",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.tenantName@@",
+
+      "type": "textfield",
+
+      "required": "True"
+
+    },
+
+    {
+
+      "name": "tenantId",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.tenantId@@",
+
+      "type": "textfield",
+
+      "required": "True"
+
+    },
+
+    {
+
+      "name": "siteName",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.siteName@@",
+
+      "type": "textfield",
+
+      "required": "True",
+
+      "value": "development"
+
+    },
+
+    {
+
+      "name": "folderName",
+
+      "label": "@@ae.gcg.plugins.sharepoint.fileupload.folderName@@",
+
+      "type": "textfield",
+
+      "required": "True"
+
+    }
+
+  ]
+
+}]
